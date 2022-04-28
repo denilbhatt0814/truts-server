@@ -16,13 +16,23 @@ const addReview = async (req, res) => {
     data = JSON.parse(data);
     if (req.isAuthenticated()) {
         try {
-            let review = new Review({ ...data, user_discord_id: req.user.dicordId });
-            let db_res = await review.save();
-            if (db_res) {
-                res.redirect(`${FRONTEND}/redirect/success`);
+
+            let guild_list = JSON.parse(req.user.guilds).map((ele) => {
+                return ele.id;
+            });
+
+            if (guild_list.includes(data.guild_id)) {
+                let review = new Review({ ...data, user_discord_id: req.user.dicordId });
+                let db_res = await review.save();
+                if (db_res) {
+                    res.redirect(`${FRONTEND}/redirect/success`);
+                }
+                else {
+                    res.redirect(`${FRONTEND}/redirect/failed`);
+                }
             }
             else {
-                res.redirect(`${FRONTEND}/redirect/failed`);
+                res.send("Auth error");
             }
         }
         catch (er) {

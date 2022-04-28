@@ -109,7 +109,7 @@ const getDaoBySlug = async (req, res) => {
             guild_id: daos.guild_id,
             dao_name: daos.dao_name
         });
-       // console.log(reviews);
+        // console.log(reviews);
         return res.send({ status: true, data: { ...{ ...daos }._doc, reviews } });
     }
     else {
@@ -119,7 +119,7 @@ const getDaoBySlug = async (req, res) => {
 
 const getDaoByGuildId = async (req, res) => {
     let guild_id = req.query.guild_id;
-   // console.log(guild_id);
+    // console.log(guild_id);
     let daos = await Dao.findOne({ guild_id });
     if (daos) {
         return res.send({ status: true, data: daos });
@@ -131,11 +131,11 @@ const getDaoByGuildId = async (req, res) => {
 
 const getDaoById = async (req, res) => {
     let id = req.query.id;
-   // console.log(id);
+    // console.log(id);
     let daos = await Dao.findById(id);
 
     if (daos) {
-        return res.send({ status: true, data: daos });
+        return res.status(200).send(daos);
     }
     else {
         res.send({ status: false });
