@@ -22,5 +22,8 @@
     "passport": "^0.5.2",
     "passport-discord": "^0.1.4",
     "random-sentence": "^1.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
