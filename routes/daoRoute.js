@@ -1,14 +1,14 @@
 var express = require("express");
 var router = express.Router();
 var uploadFile = require("../s3");
+var uniqid = require('uniqid');
 
 //models
 var Dao = require("../models/Dao");
 var Review = require("../models/Review");
 
-const test = (req, res) => {
-    console.log(req);
-    res.send("Test controller!");
+const test = async (req, res) => {
+    res.send('hello');
 };
 
 const testPost = (req, res) => {
@@ -43,10 +43,12 @@ const createNewDao = async (req, res) => {
     let dao_logo_b64 = dao_logo;
 
     //Generate img_id for DaoImage db entry
-    let img_id = Math.floor(100000 + Math.random() * 900000);
-    dao_cover = `${process.env.AWS_S3_ENDPOINT}/cover_${img_id}`;
-    dao_logo = `${process.env.AWS_S3_ENDPOINT}/logo_${img_id}`;
+    let img_id = uniqid();
+    dao_name = dao_name.trim();
     slug = dao_name.toLocaleLowerCase().replace(" ", "_");
+    dao_cover = `${process.env.AWS_S3_ENDPOINT}/${slug}_cover_${img_id}`;
+    dao_logo = `${process.env.AWS_S3_ENDPOINT}/${slug}_logo_${img_id}`;
+
     let DaoData = new Dao({
         dao_name,
         dao_category,
@@ -72,8 +74,8 @@ const createNewDao = async (req, res) => {
         let dbres = await DaoData.save();
 
         if (dbres) {
-            let res_cover = uploadFile(dao_cover_b64, `cover_${img_id}`);
-            let res_logo = uploadFile(dao_logo_b64, `logo_${img_id}`);
+            let res_cover = uploadFile(dao_cover_b64, `${slug}_cover_${img_id}`);
+            let res_logo = uploadFile(dao_logo_b64, `${slug}_logo_${img_id}`);
 
             if (res_cover && res_logo) {
                 res.send({ status: true });

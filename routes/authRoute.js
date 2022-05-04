@@ -27,5 +27,10 @@ router.get('/discord/test', (req, res) => {
     res.status(200);
 })
 
+// router.get('/get-guild-object', (req, res) => {
+//     send access token
+//     let api_url = 'https://discordapp.com/api/v6/users/@me/guilds/{guild.id}/member';
+//     res.redirect('https://discordapp.com/api/v6/users/@me/guilds/919638313512611840/member')
+// })
 
 module.exports = router;

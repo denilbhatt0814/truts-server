@@ -62,6 +62,10 @@ var DaoSchema = new Schema({
             "q6": 50,
         }
     },
+    review_count: {
+        type: Number,
+        default: 0
+    }
 });
 
 
