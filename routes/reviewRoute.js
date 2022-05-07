@@ -5,7 +5,9 @@ const passport = require('passport');
 
 //models
 var Review = require('../models/Review');
-var Dao = require('../models/Dao')
+var Dao = require('../models/Dao');
+var RateReview = require('../models/RateReview');
+
 
 const FRONTEND = process.env.FRONTEND
 
@@ -87,7 +89,6 @@ let para = [
     "DAOs are appealing because they are accessible, can rapidly pool and distribute capital, facilitate efficient voting processes and reduce the need to manually monitor fraud. By making group decisions more transparent and autonomous, they reduce organisational frictions and chances of fraudulent behaviour. Since they are digitally native and easy to join"
 ]
 
-
 module.exports = para;
 
 const addSampleReviews = async (req, res) => {
@@ -149,6 +150,81 @@ const addSampleReviews = async (req, res) => {
     }
     res.status(200)
 }
+
+const RateReviewHandler = async (req, res) => {
+
+    console.log(req.body);
+
+    let review_id = req.body.review_id;
+    let wallet_address = req.body.wallet_address;
+    let type = req.body.type;
+
+    let rating = type;
+
+    let check_duplicate = await RateReview.find({
+        "review_id": review_id,
+        "wallet_address": wallet_address,
+    })
+
+    if (check_duplicate.length > 0) {
+        console.log(check_duplicate)
+        return res.status(403).send();
+    }
+
+    let rateReview = new RateReview({
+        "review_id": review_id,
+        "wallet_address": wallet_address,
+        "rating": rating
+    })
+
+    console.log(rateReview)
+
+    try {
+        let db_res = await rateReview.save();
+        if (db_res) {
+            let rev_res = await Review.findById(review_id);
+            if (rev_res) {
+                if (rating) {
+                    if (rev_res?.thumbs_up > 1) {
+                        rev_res.thumbs_up = rev_res.thumbs_up + 1;
+                    }
+                    else {
+                        rev_res.thumbs_up = 1;
+                    }
+                }
+                else if (rev_res == false) {
+                    if (rev_res?.thumbs_down > 1) {
+                        rev_res.thumbs_down = rev_res.thumbs_down + 1;
+                    }
+                    else {
+                        rev_res.thumbs_down = 1;
+                    }
+                }
+
+                let fin_res = rev_res.save();
+
+                if (fin_res) {
+                    res.status(200).send();
+                }
+                else {
+                    res.status(500).send();
+                }
+
+            } else {
+                res.status(500).send();
+            }
+        } else {
+            res.status(500).send();
+        }
+    }
+    catch (er) {
+        console.log(er)
+        res.status(500).send();
+    }
+
+}
+
+router.post('/rate-review', RateReviewHandler)
 
 router.get('/add-review', addReview);
 // router.get('/add-sample', addSampleReviews);

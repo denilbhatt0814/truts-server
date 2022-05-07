@@ -13,7 +13,9 @@ let ReviewScheam = new Schema({
     "user_discord_id": String,
     "dao_name": String,
     "guild_id": String,
-    "public_address": String
+    "public_address": String,
+    "thumbs_up": { type: Number, default: 0 },
+    "thumbs_down": { type: Number, default: 0 }
 })
 
 module.exports = mongoose.model('Review', ReviewScheam);
