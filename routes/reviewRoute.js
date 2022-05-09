@@ -7,6 +7,7 @@ const passport = require('passport');
 var Review = require('../models/Review');
 var Dao = require('../models/Dao');
 var RateReview = require('../models/RateReview');
+const { findOne, findById } = require('../models/Review');
 
 
 const FRONTEND = process.env.FRONTEND
@@ -159,69 +160,36 @@ const RateReviewHandler = async (req, res) => {
     let wallet_address = req.body.wallet_address;
     let type = req.body.type;
 
-    let rating = type;
-
-    let check_duplicate = await RateReview.find({
-        "review_id": review_id,
-        "wallet_address": wallet_address,
-    })
-
-    if (check_duplicate.length > 0) {
-        console.log(check_duplicate)
-        return res.status(403).send();
-    }
-
-    let rateReview = new RateReview({
-        "review_id": review_id,
-        "wallet_address": wallet_address,
-        "rating": rating
-    })
-
-    console.log(rateReview)
-
     try {
-        let db_res = await rateReview.save();
-        if (db_res) {
-            let rev_res = await Review.findById(review_id);
-            if (rev_res) {
-                if (rating) {
-                    if (rev_res?.thumbs_up > 1) {
-                        rev_res.thumbs_up = rev_res.thumbs_up + 1;
-                    }
-                    else {
-                        rev_res.thumbs_up = 1;
-                    }
-                }
-                else if (rev_res == false) {
-                    if (rev_res?.thumbs_down > 1) {
-                        rev_res.thumbs_down = rev_res.thumbs_down + 1;
-                    }
-                    else {
-                        rev_res.thumbs_down = 1;
-                    }
-                }
-
-                let fin_res = rev_res.save();
-
-                if (fin_res) {
-                    res.status(200).send();
-                }
-                else {
-                    res.status(500).send();
-                }
-
-            } else {
-                res.status(500).send();
-            }
-        } else {
-            res.status(500).send();
+        let rateing_by_wallet = await RateReview.findOne({ review_id, wallet_address });
+        if (rateing_by_wallet) {
+            rateing_by_wallet.rating = type;
+            await rateing_by_wallet.save();
         }
+        else {
+            let newRating = new RateReview({ review_id, wallet_address, rating: type });
+            await newRating.save();
+        }
+
+        let true_res = await RateReview.find({ review_id, rating: true });
+        let false_res = await RateReview.find({ review_id, rating: false });
+
+        let review_doc = await Review.findById(review_id);
+
+        if (!review_doc) {
+            res.status(404).send({ msg: "review doc not found" });
+        }
+
+        review_doc.thumbs_down = (false_res?.length) ? false_res?.length : 0;
+        review_doc.thumbs_up = (true_res?.length) ? true_res?.length : 0;
+
+        await review_doc.save();
+        res.status(200).send({ msg: "request sucess" });
     }
     catch (er) {
-        console.log(er)
-        res.status(500).send();
+        console.log(er);
+        res.status(500).send({ msg: "server error", er });
     }
-
 }
 
 router.post('/rate-review', RateReviewHandler)
