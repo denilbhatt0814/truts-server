@@ -65,7 +65,15 @@ var DaoSchema = new Schema({
     review_count: {
         type: Number,
         default: 0
-    }
+    },
+    twitter_followers: {
+        type: Number,
+        default: 0
+    },
+    discord_members: {
+        type: Number,
+        default: 0
+    },
 });
 
 

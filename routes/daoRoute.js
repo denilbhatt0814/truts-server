@@ -3,11 +3,16 @@ var router = express.Router();
 var uploadFile = require("../s3");
 var uniqid = require('uniqid');
 
+//dao data
+
+// var uploadData = require('../newData');
+
 //models
 var Dao = require("../models/Dao");
 var Review = require("../models/Review");
 
 const test = async (req, res) => {
+    // uploadData();
     res.send('hello');
 };
 

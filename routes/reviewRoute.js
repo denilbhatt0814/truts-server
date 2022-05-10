@@ -7,8 +7,6 @@ const passport = require('passport');
 var Review = require('../models/Review');
 var Dao = require('../models/Dao');
 var RateReview = require('../models/RateReview');
-const { findOne, findById } = require('../models/Review');
-
 
 const FRONTEND = process.env.FRONTEND
 
