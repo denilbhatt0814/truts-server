@@ -5,14 +5,14 @@ var uniqid = require('uniqid');
 
 //dao data
 
-// var uploadData = require('../newData');
+var uploadData = require('../newData');
 
 //models
 var Dao = require("../models/Dao");
 var Review = require("../models/Review");
 
 const test = async (req, res) => {
-    // uploadData();
+    uploadData();
     res.send('hello');
 };
 
@@ -152,11 +152,11 @@ const getDaoByCategory = async (req, res) => {
     console.log(category);
 
     let daos = await Dao.find({
-        dao_category: category,
+        dao_category: 'Service',
     });
 
     if (daos.length != 0) {
-        res.status(200).send({ data: daos });
+        res.status(200).send(daos.splice(0, 5));
         return;
     } else {
         res.status(404).send();
