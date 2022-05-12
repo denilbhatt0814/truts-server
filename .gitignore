@@ -107,3 +107,5 @@ dist
 .env.example
 .env.local
 .env.staging
+
+newData
