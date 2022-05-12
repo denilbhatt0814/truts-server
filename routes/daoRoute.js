@@ -164,10 +164,27 @@ const getDaoByCategory = async (req, res) => {
     }
 };
 
-router.get("/similar", getDaoByCategory);
+const redirectById = async (req, res) => {
+    let id = req.query.id;
+    let url = req.query.url
+    // console.log(id);
+    let daos = await Dao.findById(id);
 
+
+    console.log(id);
+
+    if (daos) {
+        return res.send({ url: `${url.replace('/redirect/success', '')}/dao/${daos.slug}` });
+    }
+    else {
+        return res.redirect(`${url}`);
+    }
+}
+
+router.get('/redirect', redirectById);
 
 //Routes
+router.get("/similar", getDaoByCategory);
 
 //create new daos
 router.post("/create-new-dao", createNewDao);
