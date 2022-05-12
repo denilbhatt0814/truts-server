@@ -12,7 +12,7 @@ var Dao = require("../models/Dao");
 var Review = require("../models/Review");
 
 const test = async (req, res) => {
-    uploadData();
+    // uploadData();
     res.send('hello');
 };
 
