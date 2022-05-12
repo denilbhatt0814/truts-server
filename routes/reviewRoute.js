@@ -54,6 +54,40 @@ const addReview = async (req, res) => {
     }
 }
 
+const addReviewEvent = async (req, res) => {
+    let data = req.query.data;
+    data = JSON.parse(data);
+
+    try {
+        let guild_list = JSON.parse(req.user.guilds).map((ele) => {
+            return ele.id;
+        });
+
+        let dao_name = data.dao_name;
+        let guild_id = data.guild_id;
+
+
+        let review = new Review({ ...data, user_discord_id: req.user.dicordId });
+        let db_res = await review.save();
+        let count = await Review.count({ dao_name, guild_id });
+        let dao = await Dao.findOne({ dao_name, guild_id });
+        dao.review_count = count;
+        console.log(dao)
+        await dao.save();
+        if (db_res) {
+            res.redirect(`${FRONTEND}/redirect/success`);
+        }
+        else {
+            res.redirect(`${FRONTEND}/redirect/failed`);
+        }
+
+    }
+    catch (er) {
+        console.log(er);
+        res.redirect(`${FRONTEND}/redirect/failed`);
+    }
+}
+
 let reviewSample = {
     "rating": `${((Math.floor(Math.random() * 3)) + 6)}`,
     "review_desc": "",
@@ -193,6 +227,7 @@ const RateReviewHandler = async (req, res) => {
 router.post('/rate-review', RateReviewHandler)
 
 router.get('/add-review', addReview);
+router.get('/add-review-event', addReviewEvent);
 // router.get('/add-sample', addSampleReviews);
 
 module.exports = router;

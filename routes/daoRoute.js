@@ -5,7 +5,7 @@ var uniqid = require('uniqid');
 
 //dao data
 
-var uploadData = require('../newData');
+//var uploadData = require('../newData');
 
 //models
 var Dao = require("../models/Dao");
