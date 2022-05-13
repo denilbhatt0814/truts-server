@@ -79,8 +79,10 @@ const createNewDao = async (req, res) => {
         let dbres = await DaoData.save();
 
         if (dbres) {
-            let res_cover = uploadFile(dao_cover_b64, `${slug}_cover_${img_id}`);
-            let res_logo = uploadFile(dao_logo_b64, `${slug}_logo_${img_id}`);
+            let res_cover = await uploadFile(dao_cover_b64, `${slug}_cover_${img_id}`);
+            let res_logo = await uploadFile(dao_logo_b64, `${slug}_logo_${img_id}`);
+
+            console.log(res_cover);
 
             if (res_cover && res_logo) {
                 res.send({ status: true });
