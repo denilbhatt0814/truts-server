@@ -202,6 +202,38 @@ const redirectById = async (req, res) => {
   }
 };
 
+const getLeaderboard = async (req, res) => {
+  // Number of top DAOs
+  let count = req.query.count ? req.query.count : "10";
+
+  try {
+    // verifying if query has a Number
+    if (isNaN(count)) {
+      throw "NOT_A_NUMBER";
+    }
+    count = Number(count); // converting to int (from query)
+  } catch (err) {
+    // Incase query isn't a int
+    return res.status(400).json({
+      msg: "error parsing request",
+    });
+  }
+
+  try {
+    // Fetching top daos by sorting from DB based on ReviewCount
+    let daos = await Dao.find(
+      {},
+      { dao_name: 1, slug: 1, review_count: 1, average_rating: 1, _id: 0 }
+    )
+      .limit(count)
+      .sort({ review_count: -1 });
+
+    res.status(200).send(daos);
+  } catch (err) {
+    res.status(500);
+  }
+};
+
 router.get("/redirect", redirectById);
 
 //Routes
@@ -221,6 +253,9 @@ router.get("/get-dao-by-guild", getDaoByGuildId);
 
 //get dao by id
 router.get("/get-dao-by-id", getDaoById);
+
+// leaderboard
+router.get("/leaderboard", getLeaderboard);
 
 //tests
 
