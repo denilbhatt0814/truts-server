@@ -26,6 +26,14 @@ const addReview = async (req, res) => {
             let guild_id = data.guild_id;
 
             if (guild_list.includes(data.guild_id)) {
+                let review_exist = await Review.findOne({
+                    user_discord_id: req.user.dicordId,
+                    public_address: data.public_address
+                })
+                //duplicate review check
+                if (review_exist) {
+                    return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
+                }
                 let review = new Review({ ...data, user_discord_id: req.user.dicordId });
                 let db_res = await review.save();
                 let count = await Review.count({ dao_name, guild_id });

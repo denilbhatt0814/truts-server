@@ -1,0 +1,26 @@
+# MONGO DB CREDS
+MONGODB_URI = mongodb://thedaoverse:Daogm987@docdb-2022-05-13-19-38-07.cluster-cfp2igyulszq.ap-south-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
+PORT = 5000
+
+# FRONTEND 
+FRONTEND = 'http://localhost:3000'
+BACKEND = 'http://localhost:5000'
+
+# AWS S3 CREDS
+AWS_BUCKET_NAME = "daoverse-bucket"
+AWS_SECRET = u8V3F85NO07R7aEayguufl1EwVNHi9M3bT2jY8vR
+AWS_ID = AKIA6D2EAK4VUQLH65NU
+AWS_USER = admin
+AWS_REGION = ap-south-1
+AWS_S3_ENDPOINT = https://daoverse-bucket.s3.ap-south-1.amazonaws.com
+
+
+# DICORD API CREDS
+DISCORD_APPLICATION_ID = 966238946294116382
+DISCORD_PUBLIC_KEY = 0f7bc672fce47b8681e8661fc4b3b54f63d37f2f598d1fac40eb67f8b85eb6b0
+DISCORD_SECRET = HHOYsmJnPItekSI5UiU1g_hc53TaTcZ-
+
+
+#mongodb://thedaoverse:<insertYourPassword>@trutsdb.cluster-ce8d6e9gyv3s.us-west-2.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
+
+#mongodb+srv://john:PMyHyegmwpP5mycv@cluster0.wzne0.mongodb.net/daoverseprod
