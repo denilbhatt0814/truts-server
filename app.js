@@ -13,6 +13,7 @@ require("./strategies/discord");
 const daoRouter = require("./routes/daoRoute");
 const authRouter = require("./routes/authRoute");
 const reviewRouter = require("./routes/reviewRoute");
+const searchRouter = require("./routes/searchRoute");
 
 // intialize server
 const app = express();
@@ -44,6 +45,7 @@ app.use(passport.session());
 app.use("/dao", daoRouter);
 app.use("/auth", authRouter);
 app.use("/review", reviewRouter);
+app.use("/search", searchRouter);
 
 const port = process.env.PORT;
 db.once("open", function () {
