@@ -103,7 +103,7 @@ const createNewDao = async (req, res) => {
 };
 
 const getAllDaos = async (req, res) => {
-  let daos = await Dao.find();
+  let daos = await Dao.find().sort({ review_count: 1 });
   return res.send(daos);
 };
 
