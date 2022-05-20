@@ -3,9 +3,7 @@ var router = express.Router();
 var uploadFile = require("../s3");
 var uniqid = require("uniqid");
 
-//dao data
 
-//var uploadData = require('../newData');
 
 //models
 var Dao = require("../models/Dao");
@@ -168,21 +166,8 @@ const getDaoById = async (req, res) => {
 // takes categories from URL query and searches for
 // realted in DB, finally returning the matches
 const getDaoByCategory = async (req, res) => {
-  let category = req.query.category;
-
-  //   console.log(category);
-
-  let daos = await Dao.find({
-    dao_category: "Service",
-  });
-
-  if (daos.length != 0) {
-    res.status(200).send(daos.splice(0, 5));
-    return;
-  } else {
-    res.status(404).send();
-    return;
-  }
+  let daos = res.paginatedResults;
+  return res.status(200).send(daos);
 };
 
 const redirectById = async (req, res) => {
@@ -240,9 +225,17 @@ const getLeaderboard = async (req, res) => {
 // get data in pieces/show it using pagination
 // Need to pass the Data model that is to be paginated
 const paginatedResults = (models) => {
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
   return async (req, res, next) => {
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
+    const category = req.query.category;
+    let query = {};
+
+    //if category is requested      //accounting for various cases
+    query = category ? { $or: [{ dao_category: category }, { dao_category: category.toLocaleLowerCase }, { dao_category: capitalizeFirstLetter(category) }] } : {}
 
     // Index of data to fetch/send
     const startIndex = (page - 1) * limit;
@@ -261,7 +254,7 @@ const paginatedResults = (models) => {
 
     // Incase more data available to share
     // will point to next page
-    if (endIndex < (await models.countDocuments())) {
+    if (endIndex < (await models.countDocuments(query))) {
       results.next = {
         page: page + 1,
         limit: limit,
@@ -271,7 +264,7 @@ const paginatedResults = (models) => {
     try {
       // Querying DB to get data in Paginated form
       results.results = await models
-        .find({}, { question_list: 0, question_list_rating: 0 })
+        .find(query, { question_list: 0, question_list_rating: 0 })
         .sort({ review_count: -1 })
         .limit(limit)
         .skip(startIndex);
@@ -291,7 +284,7 @@ const paginatedResults = (models) => {
 router.get("/redirect", redirectById);
 
 // get similar daos
-router.get("/similar", getDaoByCategory);
+router.get("/similar", paginatedResults(Dao), getDaoByCategory);
 
 // create new daos
 router.post("/create-new-dao", createNewDao);
