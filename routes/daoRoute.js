@@ -103,8 +103,8 @@ const createNewDao = async (req, res) => {
 };
 
 const getAllDaos = async (req, res) => {
-  let daos = await Dao.find();
-  return res.send(daos);
+  let daos = res.paginatedResults;
+  return res.status(200).send(daos);
 };
 
 const getDaoBySlug = async (req, res) => {
@@ -234,16 +234,70 @@ const getLeaderboard = async (req, res) => {
   }
 };
 
+// ----------- MIDDLEWARES ----------
+
+// paginatedResults is a middleware that will
+// get data in pieces/show it using pagination
+// Need to pass the Data model that is to be paginated
+const paginatedResults = (models) => {
+  return async (req, res, next) => {
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+
+    // Index of data to fetch/send
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const results = {};
+
+    // If not first page will send the
+    // pointer to last page
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
+
+    // Incase more data available to share
+    // will point to next page
+    if (endIndex < (await models.countDocuments())) {
+      results.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
+
+    try {
+      // Querying DB to get data in Paginated form
+      results.results = await models
+        .find({}, { question_list: 0, question_list_rating: 0 })
+        .sort({ review_count: -1 })
+        .limit(limit)
+        .skip(startIndex);
+
+      // adding data to res object
+      res.paginatedResults = results;
+
+      // Exiting middleware
+      next();
+    } catch (err) {
+      res.status(500).json({ msg: "Internal server error" });
+    }
+  };
+};
+
+// ----------- ROUTES --------------
 router.get("/redirect", redirectById);
 
-//Routes
+// get similar daos
 router.get("/similar", getDaoByCategory);
 
-//create new daos
+// create new daos
 router.post("/create-new-dao", createNewDao);
 
 //get list of daos
-router.get("/get-dao-list", getAllDaos);
+router.get("/get-dao-list", paginatedResults(Dao), getAllDaos);
 
 //get dao by slug
 router.get("/get-dao-by-slug", getDaoBySlug);
