@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const passport = require("passport");
+const compression = require('compression');
 require("./strategies/discord");
 
 //import routers
@@ -18,7 +19,7 @@ const searchRouter = require("./routes/searchRoute");
 // intialize server
 const app = express();
 app.use(cors({ credentials: true }));
-
+app.use(compression());
 // Set up mongoose connection
 const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
