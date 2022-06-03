@@ -23,21 +23,21 @@ passport.use(
             clientID: process.env.DISCORD_APPLICATION_ID,
             clientSecret: process.env.DISCORD_SECRET,
             callbackURL: `${process.env.BACKEND}/auth/discord/redirect`,
-            scope: ['identify', 'email', 'guilds', 'guilds.members.read']
+            scope: ['identify', 'guilds', 'guilds.members.read']
         },
         async (accessToken, refreshToken, profile, cb) => {
             try {
                 console.log(profile);
                 const existingUser = await User.findOneAndUpdate(
                     { dicordId: profile.id },
-                    { accessToken, refreshToken, email: profile.email, guilds: JSON.stringify(profile.guilds), profile_img: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}` },
+                    { accessToken, refreshToken, guilds: JSON.stringify(profile.guilds), profile_img: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}` },
                     { new: true }
                 )
                 // console.log(profile);
                 if (existingUser) { return cb(null, existingUser); }
 
                 const newUser = new User({
-                    dicordId: profile.id, accessToken, refreshToken, email: profile.email, guilds: JSON.stringify(profile.guilds),
+                    dicordId: profile.id, accessToken, refreshToken, guilds: JSON.stringify(profile.guilds),
                     profile_img: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}`
                 });
                 let savedUser = await newUser.save();
