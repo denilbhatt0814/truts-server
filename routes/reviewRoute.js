@@ -10,72 +10,19 @@ var RateReview = require('../models/RateReview');
 
 const FRONTEND = process.env.FRONTEND
 
-
-
 const addReview = async (req, res) => {
-    let data = req.query.data;
-    data = JSON.parse(data);
-    if (req.isAuthenticated()) {
-        try {
 
-            let guild_list = JSON.parse(req.user.guilds).map((ele) => {
-                return ele.id;
-            });
-
-            let dao_name = data.dao_name;
-            let guild_id = data.guild_id;
-
-            if (guild_list.includes(data.guild_id)) {
-                let review_exist = await Review.findOne({
-                    user_discord_id: req.user.dicordId,
-                    public_address: data.public_address
-                })
-                //duplicate review check
-                if (review_exist) {
-                    return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
-                }
-                let review = new Review({ ...data, user_discord_id: req.user.dicordId });
-                let db_res = await review.save();
-                let count = await Review.count({ dao_name, guild_id });
-                let dao = await Dao.findOne({ dao_name, guild_id });
-                dao.review_count = count;
-                console.log(dao)
-                await dao.save();
-                if (db_res) {
-                    res.redirect(`${FRONTEND}/redirect/success`);
-                }
-                else {
-                    res.redirect(`${FRONTEND}/redirect/failed`);
-                }
-            }
-            else {
-                res.send("Auth error");
-            }
-        }
-        catch (er) {
-            console.log(er);
-            res.redirect(`${FRONTEND}/redirect/failed`);
-        }
-    }
-    else {
-        res.send("Auth error");
-    }
-}
-
-const addReviewEvent = async (req, res) => {
-    let data = req.query.data;
-    data = JSON.parse(data);
+    let data = req.body;
 
     try {
-        let guild_list = JSON.parse(req.user.guilds).map((ele) => {
-            return ele.id;
-        });
+        // let guild_list = JSON.parse(req.user.guilds).map((ele) => {
+        //     return ele.id;
+        // });
 
         let dao_name = data.dao_name;
         let guild_id = data.guild_id;
 
-
-        let review = new Review({ ...data, user_discord_id: req.user.dicordId });
+        let review = new Review({ ...data });
         let db_res = await review.save();
         let count = await Review.count({ dao_name, guild_id });
         let dao = await Dao.findOne({ dao_name, guild_id });
@@ -83,18 +30,149 @@ const addReviewEvent = async (req, res) => {
         console.log(dao)
         await dao.save();
         if (db_res) {
-            res.redirect(`${FRONTEND}/redirect/success`);
+            res.status(200).send({ db: db_res });
         }
         else {
-            res.redirect(`${FRONTEND}/redirect/failed`);
+            res.status(403);
         }
 
     }
     catch (er) {
         console.log(er);
-        res.redirect(`${FRONTEND}/redirect/failed`);
+        res.status(403).send({ error: er });
     }
 }
+
+const authorizeReview = async (req, res) => {
+    let data = req.query.data;
+    data = JSON.parse(data);
+    console.log(data)
+    if (req.isAuthenticated()) {
+        try {
+
+            let guild_list = JSON.parse(req.user.guilds).map((ele) => {
+                return ele.id;
+            });
+
+            console.log(guild_list)
+
+            if (guild_list.includes(data.guild_id)) {
+                let review_exist = await Review.findOne({
+                    user_discord_id: req.user.dicordId,
+                    public_address: data.public_address,
+                    dao_name: data.dao_name
+                })
+                //duplicate review check
+                if (review_exist) {
+                    return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
+                }
+                let current_review = await Review.findById(data.id);
+                current_review.authorized = true;
+                current_review.user_discord_id = req.user.dicordId;
+                let save_current_review = await current_review.save();
+                // update review count
+                let count = await Review.count({ dao_name: data.dao_name, guild_id: data.guild_id });
+                let dao = await Dao.findOne({ dao_name: data.dao_name, guild_id: data.guild_id });
+                dao.review_count = count;
+                console.log(dao)
+                await dao.save();
+                if (save_current_review) {
+                    res.redirect(`${FRONTEND}/redirect/success`);
+                }
+                else {
+                    res.redirect(`${FRONTEND}/redirect/failed`);
+                }
+            }
+            else {
+                res.send("guild Auth error");
+            }
+
+        }
+        catch (er) {
+            console.log(er)
+            res.redirect(`${FRONTEND}/redirect/failed`);
+        }
+    }
+    else {
+        res.send("Auth strat error");
+    }
+}
+
+
+const addReviewEvent = async (req, res) => {
+    let data = req.body;
+    try {
+        // let guild_list = JSON.parse(req.user.guilds).map((ele) => {
+        //     return ele.id;
+        // });
+
+        let dao_name = data.dao_name;
+        let guild_id = data.guild_id;
+
+        let review = new Review({ ...data });
+        let db_res = await review.save();
+        let count = await Review.count({ dao_name, guild_id });
+        let dao = await Dao.findOne({ dao_name, guild_id });
+        dao.review_count = count;
+        console.log(dao)
+        await dao.save();
+        if (db_res) {
+            res.status(200).send({ db: db_res });
+        }
+        else {
+            res.status(403);
+        }
+
+    }
+    catch (er) {
+        console.log(er);
+        res.status(403).send({ error: er });
+    }
+}
+
+const authorizeReviewEvent = async (req, res) => {
+    let data = req.query.data;
+    data = JSON.parse(data);
+    console.log(data)
+    if (req.isAuthenticated()) {
+        try {
+            let review_exist = await Review.findOne({
+                user_discord_id: req.user.dicordId,
+                public_address: data.public_address,
+                dao_name: data.dao_name
+            })
+            //duplicate review check
+            if (review_exist) {
+                return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
+            }
+            let current_review = await Review.findById(data.id);
+            current_review.authorized = true;
+            current_review.user_discord_id = req.user.dicordId;
+            let save_current_review = await current_review.save();
+            // update review count
+            let count = await Review.count({ dao_name: data.dao_name, guild_id: data.guild_id });
+            let dao = await Dao.findOne({ dao_name: data.dao_name, guild_id: data.guild_id });
+            dao.review_count = count;
+            console.log(dao)
+            await dao.save();
+            if (save_current_review) {
+                res.redirect(`${FRONTEND}/redirect/success`);
+            }
+            else {
+                res.redirect(`${FRONTEND}/redirect/failed`);
+            }
+        }
+        catch (er) {
+            console.log(er)
+            res.redirect(`${FRONTEND}/redirect/failed`);
+        }
+    }
+    else {
+        res.send("Auth strat error");
+    }
+}
+
+
 
 let reviewSample = {
     "rating": `${((Math.floor(Math.random() * 3)) + 6)}`,
@@ -234,8 +312,10 @@ const RateReviewHandler = async (req, res) => {
 
 router.post('/rate-review', RateReviewHandler)
 
-router.get('/add-review', addReview);
-router.get('/add-review-event', addReviewEvent);
+router.post('/add-review', addReview);
+router.get('/authorize-review', authorizeReview);
+router.post('/add-review-event', addReviewEvent);
+router.get('/authorize-review-event', authorizeReviewEvent);
 // router.get('/add-sample', addSampleReviews);
 
 module.exports = router;

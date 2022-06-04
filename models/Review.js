@@ -15,7 +15,8 @@ let ReviewScheam = new Schema({
     "guild_id": String,
     "public_address": String,
     "thumbs_up": { type: Number, default: 0 },
-    "thumbs_down": { type: Number, default: 0 }
+    "thumbs_down": { type: Number, default: 0 },
+    "authorized": { type: Boolean, default: false }
 })
 
 module.exports = mongoose.model('Review', ReviewScheam);
