@@ -32,6 +32,7 @@ const searchDao = async (req, res) => {
           slug: 1,
           dao_logo: 1,
           review_count: 1,
+          dao_category: 1,
           _id: 0,
         }
       ).limit(10);
@@ -75,6 +76,7 @@ const searchDao = async (req, res) => {
           dao_logo: 1,
           review_count: 1,
           _id: 0,
+          dao_category: 1,
         }
       ).limit(10);
 
