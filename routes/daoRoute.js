@@ -10,10 +10,10 @@ var Dao = require("../models/Dao");
 var Review = require("../models/Review");
 var User = require("../models/User");
 
-var uploadData = require('../newData');
+//var uploadData = require('../newData');
 
 const test = async (req, res) => {
-  uploadData();
+  //uploadData();
   res.send("hello");
 };
 
@@ -119,7 +119,11 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = await Promise.all(
       reviews.map(async (review, idx) => {
-        if (review?.authorized) { if (review.authorized == false) { return null } }
+  
+        if (!review.user_discord_id) {
+          return null
+        }
+
         const dicordId = review.user_discord_id;
         let user = await User.findOne({ dicordId });
         img_url = user.profile_img;
@@ -140,6 +144,7 @@ const getDaoBySlug = async (req, res) => {
     return res
       .status(200)
       .send({ status: true, data: { ...{ ...daos }._doc, reviews } });
+
   } else {
     res.status(404).send({ status: false });
   }

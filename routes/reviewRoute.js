@@ -17,16 +17,9 @@ const addReview = async (req, res) => {
         //     return ele.id;
         // });
 
-        let dao_name = data.dao_name;
-        let guild_id = data.guild_id;
-
         let review = new Review({ ...data });
         let db_res = await review.save();
-        let count = await Review.count({ dao_name, guild_id });
-        let dao = await Dao.findOne({ dao_name, guild_id });
-        dao.review_count = count;
-        console.log(dao);
-        await dao.save();
+
         if (db_res) {
             res.status(200).send({ db: db_res });
         } else {
@@ -75,6 +68,8 @@ const authorizeReview = async (req, res) => {
                     guild_id: data.guild_id,
                 });
 
+                dao.review_count = count;
+
                 // Getting average rating:
                 let rating = current_review.rating;
                 dao.average_rating = parseFloat(
@@ -82,6 +77,7 @@ const authorizeReview = async (req, res) => {
                 );
 
                 let db_res_dao = await dao.save();
+                
                 if (save_current_review && db_res_dao) {
                     res.redirect(`${FRONTEND}/redirect/success`);
                 } else {
@@ -156,9 +152,15 @@ const authorizeReviewEvent = async (req, res) => {
                 guild_id: data.guild_id,
             });
             dao.review_count = count;
-            console.log(dao);
-            await dao.save();
-            if (save_current_review) {
+            // Getting average rating:
+            let rating = current_review.rating;
+            dao.average_rating = parseFloat(
+                ((dao.average_rating * (count - 1) + parseInt(rating)) / count).toFixed(1)
+            );
+
+            let db_res_dao = await dao.save();
+
+            if (save_current_review && db_res_dao) {
                 res.redirect(`${FRONTEND}/redirect/success`);
             } else {
                 res.redirect(`${FRONTEND}/redirect/failed`);
