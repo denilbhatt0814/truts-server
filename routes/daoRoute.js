@@ -119,7 +119,7 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = await Promise.all(
       reviews.map(async (review, idx) => {
-        if (review?.authorized == false) { return null }
+        if (review?.authorized) { if (review.authorized == false) { return null } }
         const dicordId = review.user_discord_id;
         let user = await User.findOne({ dicordId });
         img_url = user.profile_img;
