@@ -10,8 +10,10 @@ var Dao = require("../models/Dao");
 var Review = require("../models/Review");
 var User = require("../models/User");
 
+var uploadData = require('../newData');
+
 const test = async (req, res) => {
-  // uploadData();
+  uploadData();
   res.send("hello");
 };
 

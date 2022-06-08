@@ -7,7 +7,7 @@ var DaoSchema = new Schema({
         type: [{ type: String }],
         required: true,
         validate: {
-            validator: v => (v.length <= 3),
+            validator: v => (v.length <= 10),
             message: "Category is over 3"
         }
     },
