@@ -119,10 +119,10 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = await Promise.all(
       reviews.map(async (review, idx) => {
+        if (review?.authorized == false) { return null }
         const dicordId = review.user_discord_id;
         let user = await User.findOne({ dicordId });
         img_url = user.profile_img;
-
         // In case img isn't available: Default Avatar
         if (img_url.slice(-4) === "null") {
           img_url = "https://www.truts.xyz/hero-bg.jpg";
@@ -132,6 +132,10 @@ const getDaoBySlug = async (req, res) => {
         return review;
       })
     );
+
+    reviews = reviews.filter((ele) => {
+      return ele;
+    })
 
     return res
       .status(200)

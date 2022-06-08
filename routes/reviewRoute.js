@@ -78,7 +78,7 @@ const authorizeReview = async (req, res) => {
                 // Getting average rating:
                 let rating = current_review.rating;
                 dao.average_rating = parseFloat(
-                    ((dao.average_rating * (count - 1) + rating) / count).toFixed(1)
+                    ((dao.average_rating * (count - 1) + parseInt(rating)) / count).toFixed(1)
                 );
 
                 let db_res_dao = await dao.save();
