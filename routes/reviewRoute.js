@@ -77,7 +77,7 @@ const authorizeReview = async (req, res) => {
                 );
 
                 let db_res_dao = await dao.save();
-                
+
                 if (save_current_review && db_res_dao) {
                     res.redirect(`${FRONTEND}/redirect/success`);
                 } else {
@@ -280,15 +280,29 @@ const RateReviewHandler = async (req, res) => {
     let wallet_address = req.body.wallet_address;
     let type = req.body.type;
 
+    let unique = true;
+    let deleted = false;
+
     try {
         let rateing_by_wallet = await RateReview.findOne({
             review_id,
             wallet_address,
         });
         if (rateing_by_wallet) {
-            rateing_by_wallet.rating = type;
-            await rateing_by_wallet.save();
+            unique = false;
+            if (rateing_by_wallet.rating == type) {
+                //Undo rating
+                rateing_by_wallet.review_id = "";
+                deleted = true;
+                await rateing_by_wallet.save();
+            }
+            else {
+                //switch rating
+                rateing_by_wallet.rating = type;
+                await rateing_by_wallet.save();
+            };
         } else {
+            //new rating
             let newRating = new RateReview({
                 review_id,
                 wallet_address,
@@ -310,7 +324,7 @@ const RateReviewHandler = async (req, res) => {
         review_doc.thumbs_up = true_res?.length ? true_res?.length : 0;
 
         await review_doc.save();
-        res.status(200).send({ msg: "request sucess" });
+        res.status(200).send({ msg: "request sucess", unique, deleted });
     } catch (er) {
         console.log(er);
         res.status(500).send({ msg: "server error", er });
