@@ -219,7 +219,16 @@ const getLeaderboard = async (req, res) => {
     // Fetching top daos by sorting from DB based on ReviewCount
     let daos = await Dao.find(
       {},
-      { dao_name: 1, slug: 1, review_count: 1, average_rating: 1, _id: 0 }
+      {
+        dao_name: 1,
+        slug: 1,
+        review_count: 1,
+        average_rating: 1,
+        website_link: 1,
+        twitter_link: 1,
+        discord_link: 1,
+        _id: 0,
+      }
     )
       .limit(count)
       .sort({ review_count: -1 });
