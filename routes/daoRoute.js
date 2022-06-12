@@ -3,8 +3,6 @@ var router = express.Router();
 var uploadFile = require("../s3");
 var uniqid = require("uniqid");
 
-
-
 //models
 var Dao = require("../models/Dao");
 var Review = require("../models/Review");
@@ -119,9 +117,8 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = await Promise.all(
       reviews.map(async (review, idx) => {
-  
         if (!review.user_discord_id) {
-          return null
+          return null;
         }
 
         const dicordId = review.user_discord_id;
@@ -139,12 +136,11 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = reviews.filter((ele) => {
       return ele;
-    })
+    });
 
     return res
       .status(200)
       .send({ status: true, data: { ...{ ...daos }._doc, reviews } });
-
   } else {
     res.status(404).send({ status: false });
   }
@@ -246,7 +242,15 @@ const paginatedResults = (models) => {
     let query = {};
 
     //if category is requested      //accounting for various cases
-    query = category ? { $or: [{ dao_category: category }, { dao_category: category.toLocaleLowerCase }, { dao_category: capitalizeFirstLetter(category) }] } : {}
+    query = category
+      ? {
+          $or: [
+            { dao_category: category },
+            { dao_category: category.toLocaleLowerCase },
+            { dao_category: capitalizeFirstLetter(category) },
+          ],
+        }
+      : {};
 
     // Index of data to fetch/send
     const startIndex = (page - 1) * limit;
