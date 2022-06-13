@@ -18,6 +18,7 @@ const searchDao = async (req, res) => {
       // returns only 10 DAOs right now
       let daos = await Dao.find(
         {
+          verified_status: true,
           $or: [
             {
               dao_name: {
@@ -68,6 +69,7 @@ const searchDao = async (req, res) => {
       let daos = await Dao.find(
         {
           dao_name: { $regex: "^" + char, $options: "i" },
+          verified_status: true,
         },
         {
           dao_name: 1,

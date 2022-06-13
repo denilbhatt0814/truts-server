@@ -2,8 +2,7 @@ var express = require("express");
 var router = express.Router();
 var uploadFile = require("../s3");
 var uniqid = require("uniqid");
-
-
+const axios = require("axios");
 
 //models
 var Dao = require("../models/Dao");
@@ -102,6 +101,118 @@ const createNewDao = async (req, res) => {
   }
 };
 
+const createNewDaoV2 = async (req, res) => {
+  let {
+    dao_name,
+    dao_category,
+    dao_mission,
+    description,
+    slug,
+    guild_id,
+    average_rating,
+    dao_cover,
+    dao_logo,
+    discord_link,
+    twitter_link,
+    website_link,
+    additional_link,
+    verified_status,
+    additional_details,
+    question_list,
+    question_list_rating,
+    mirror_link,
+  } = req.body;
+
+  // Fetch for twitter details
+  try {
+    // Only if twitter link exists
+    if (twitter_link != "") {
+      // getting twitter link with screen name
+      const twitter_api_url =
+        "https://api.twitter.com/1.1/users/show.json?screen_name=" +
+        twitter_link.split("/").slice(-1);
+      const twitter_resp = await axios.get(twitter_api_url, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + process.env.TWITTER_API_KEY,
+        },
+      });
+      const data = twitter_resp.data;
+      // console.log(twitter_resp.data);
+
+      // Parsing response from twitter
+      var twtr_followers = data.followers_count;
+      var cover_img = data.profile_banner_url + "/1500x500";
+      var logo_img = data.profile_image_url.replace("_normal", "_400x400");
+    }
+  } catch (err) {
+    console.log(err);
+    console.log("err: issue with twitter APIs");
+  }
+
+  // Fetch for discord details
+  try {
+    // Only if discord link exists
+    if (discord_link != "") {
+      // getting twitter link with screen name
+      const discord_api_url =
+        "https://discord.com/api/v9/invites/" +
+        discord_link.split("/").slice(-1);
+      const discord_resp = await axios.get(discord_api_url, {
+        method: "GET",
+      });
+      const dc_data = discord_resp.data;
+      // console.log(discord_resp.data);
+
+      // Parsing response from discord
+      var guildId = dc_data.guild.id;
+    }
+  } catch (err) {
+    console.log(err);
+    console.log("err: issue with discord APIs");
+  }
+
+  dao_name = dao_name.trim();
+  slug = dao_name.toLocaleLowerCase().replaceAll(" ", "_");
+  twitter_followers = twtr_followers ? twtr_followers : 0;
+  dao_cover = cover_img ? cover_img : dao_cover;
+  dao_logo = logo_img ? logo_img : dao_logo;
+  guild_id = guildId ? guild_id : "919638313512611840";
+  verified_status = false;
+
+  let DaoData = new Dao({
+    dao_name,
+    dao_category,
+    dao_mission,
+    description,
+    slug,
+    guild_id,
+    average_rating,
+    dao_cover,
+    dao_logo,
+    discord_link,
+    twitter_link,
+    twitter_followers,
+    website_link,
+    additional_link,
+    verified_status,
+    additional_details,
+    question_list,
+    question_list_rating,
+    mirror_link,
+  });
+
+  try {
+    let dbres = await DaoData.save();
+    // Item created succesfuly
+    res.status(201).send(DaoData);
+  } catch (error) {
+    console.log(error);
+    // Unable to save to DB
+    res.status(500).send({ msg: "Internal server error" });
+  }
+};
+
 const getAllDaos = async (req, res) => {
   let daos = res.paginatedResults;
   return res.status(200).send(daos);
@@ -119,9 +230,8 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = await Promise.all(
       reviews.map(async (review, idx) => {
-  
         if (!review.user_discord_id) {
-          return null
+          return null;
         }
 
         const dicordId = review.user_discord_id;
@@ -139,12 +249,11 @@ const getDaoBySlug = async (req, res) => {
 
     reviews = reviews.filter((ele) => {
       return ele;
-    })
+    });
 
     return res
       .status(200)
       .send({ status: true, data: { ...{ ...daos }._doc, reviews } });
-
   } else {
     res.status(404).send({ status: false });
   }
@@ -255,7 +364,16 @@ const paginatedResults = (models) => {
     let query = {};
 
     //if category is requested      //accounting for various cases
-    query = category ? { $or: [{ dao_category: category }, { dao_category: category.toLocaleLowerCase }, { dao_category: capitalizeFirstLetter(category) }] } : {}
+    query = category
+      ? {
+          verified_status: true,
+          $or: [
+            { dao_category: category },
+            { dao_category: category.toLocaleLowerCase },
+            { dao_category: capitalizeFirstLetter(category) },
+          ],
+        }
+      : { verified_status: true };
 
     // Index of data to fetch/send
     const startIndex = (page - 1) * limit;
@@ -308,6 +426,7 @@ router.get("/similar", paginatedResults(Dao), getDaoByCategory);
 
 // create new daos
 router.post("/create-new-dao", createNewDao);
+router.post("/create-new-dao-v2", createNewDaoV2);
 
 //get list of daos
 router.get("/get-dao-list", paginatedResults(Dao), getAllDaos);
