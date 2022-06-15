@@ -121,16 +121,19 @@ const createNewDaoV2 = async (req, res) => {
     question_list,
     question_list_rating,
     mirror_link,
-    submitter_dicord_id,
-    submitter_public_address
+    submitter_discord_id,
+    submitter_public_address,
   } = req.body;
 
   dao_name = dao_name.trim();
   slug = dao_name.toLocaleLowerCase().replaceAll(" ", "_");
-  twitter_followers = "";
-  dao_cover = "";
-  dao_logo = "";
+
+  twitter_followers = twtr_followers || "";
+  dao_cover = cover_img || "";
+  dao_logo = logo_img || "";
   guild_id = guild_id || "919638313512611840";
+  average_rating = 0;
+
   verified_status = false;
 
   let DaoData = new Dao({
@@ -153,8 +156,8 @@ const createNewDaoV2 = async (req, res) => {
     question_list,
     question_list_rating,
     mirror_link,
-    submitter_dicord_id,
-    submitter_public_address
+    submitter_discord_id,
+    submitter_public_address,
   });
 
   try {

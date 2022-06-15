@@ -14,6 +14,8 @@ var DaoSchema = new Schema({
   dao_mission: { type: String },
   description: { type: String },
   slug: { type: String },
+  submitter_discord_id: { type: String },
+  submitter_public_address: { type: String },
   guild_id: { type: Schema.Types.Mixed },
   average_rating: { type: Number, default: 0 },
   dao_cover: { type: String },
