@@ -15,7 +15,7 @@ var DaoSchema = new Schema({
   description: { type: String },
   slug: { type: String },
   guild_id: { type: Schema.Types.Mixed },
-  average_rating: { type: Number },
+  average_rating: { type: Number, default: 0 },
   dao_cover: { type: String },
   dao_logo: { type: String },
   discord_link: { type: String },
@@ -73,6 +73,16 @@ var DaoSchema = new Schema({
     type: Number,
     default: 0,
   },
+  discord_members: {
+    type: Number,
+    default: 0,
+  },
+  discord_members: {
+    type: Number,
+    default: 0,
+  },
+  submitter_dicord_id: { type: String },
+  submitter_public_address: { type: String },
 });
 
 // Export the model
