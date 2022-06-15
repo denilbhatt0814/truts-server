@@ -126,8 +126,8 @@ const createNewDaoV2 = async (req, res) => {
   } = req.body;
 
   dao_name = dao_name.trim();
-  slug = dao_name.toLocaleLowerCase().replaceAll(" ", "_");
-
+  slug = dao_name.toLocaleLowerCase().replace(/00/g,'_');
+  
   twitter_followers = twtr_followers || "";
   dao_cover = cover_img || "";
   dao_logo = logo_img || "";
