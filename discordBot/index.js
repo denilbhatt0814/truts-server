@@ -58,9 +58,14 @@ client.on('messageCreate', (message) => {
 });
 
 const msgFunction = async (daoName, userPublicAddress, slug) => {
-    const channelID = '987075186312511569';
-    const channel = await client.channels.fetch(channelID);
-    channel.send(`New Review on ${daoName} \nby ${userPublicAddress} \nURL: https://www.truts.xyz/dao/${slug}`);
+    try {
+        const channelID = '987075186312511569';
+        const channel = await client.channels.fetch(channelID);
+        channel.send(`New Review on ${daoName} \nby ${userPublicAddress} \nURL: https://www.truts.xyz/dao/${slug}`);
+    }
+    catch (er) {
+        console.log(er);
+    }
 };
 
 client.login(process.env.TOKEN);
