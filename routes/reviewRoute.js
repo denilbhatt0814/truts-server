@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const passport = require("passport");
-const msgFunction = require('../discordBot/index')
+// const msgFunction = require('../discordBot/index')
 
 //models
 var Review = require("../models/Review");
@@ -22,13 +22,12 @@ const addReview = async (req, res) => {
         let db_res = await review.save();
 
         if (db_res) {
-            try {
-                msgFunction(data.dao_name, data.public_address, data.dao_name.trim().toLocaleLowerCase().replace(/00/g, '_'));
-            }
-            catch (er) {
-                console.log(er);
-            }
-
+            // try {
+            //     msgFunction(data.dao_name, data.public_address, data.dao_name.trim().toLocaleLowerCase().replace(/00/g, '_'));
+            // }
+            // catch (er) {
+            //     console.log(er);
+            // }
             res.status(200).send({ db: db_res });
         } else {
             res.status(403);
