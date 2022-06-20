@@ -53,6 +53,12 @@ const authorizeReview = async (req, res) => {
             if (guild_list.includes(data.guild_id)) {
                 let review_exist = await Review.findOne({
                     user_discord_id: req.user.dicordId,
+                    dao_name: data.dao_name,
+                });
+                if (review_exist) {
+                    return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
+                }
+                review_exist = await Review.findOne({
                     public_address: data.public_address,
                     dao_name: data.dao_name,
                 });
@@ -138,6 +144,12 @@ const authorizeReviewEvent = async (req, res) => {
         try {
             let review_exist = await Review.findOne({
                 user_discord_id: req.user.dicordId,
+                dao_name: data.dao_name,
+            });
+            if (review_exist) {
+                return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
+            }
+            review_exist = await Review.findOne({
                 public_address: data.public_address,
                 dao_name: data.dao_name,
             });
