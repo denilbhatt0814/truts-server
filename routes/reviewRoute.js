@@ -19,6 +19,14 @@ const addReview = async (req, res) => {
         // });
 
         let review = new Review({ ...data });
+        let review_exist = await Review.findOne({
+            public_address: data.public_address,
+            dao_name: data.dao_name,
+        });
+        //duplicate review check
+        if (review_exist) {
+            return res.status(204).send();
+        }
         let db_res = await review.save();
 
         if (db_res) {
@@ -30,7 +38,7 @@ const addReview = async (req, res) => {
             // }
             res.status(200).send({ db: db_res });
         } else {
-            res.status(403);
+            res.status(403).send();
         }
     } catch (er) {
         console.log(er);
@@ -55,14 +63,6 @@ const authorizeReview = async (req, res) => {
                     user_discord_id: req.user.dicordId,
                     dao_name: data.dao_name,
                 });
-                if (review_exist) {
-                    return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
-                }
-                review_exist = await Review.findOne({
-                    public_address: data.public_address,
-                    dao_name: data.dao_name,
-                });
-                //duplicate review check
                 if (review_exist) {
                     return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
                 }
@@ -119,6 +119,14 @@ const addReviewEvent = async (req, res) => {
         let guild_id = data.guild_id;
 
         let review = new Review({ ...data });
+        let review_exist = await Review.findOne({
+            public_address: data.public_address,
+            dao_name: data.dao_name,
+        });
+        //duplicate review check
+        if (review_exist) {
+            return res.status(204).send();
+        }
         let db_res = await review.save();
         let count = await Review.count({ dao_name, guild_id });
         let dao = await Dao.findOne({ dao_name, guild_id });
@@ -142,21 +150,6 @@ const authorizeReviewEvent = async (req, res) => {
     console.log(data);
     if (req.isAuthenticated()) {
         try {
-            let review_exist = await Review.findOne({
-                user_discord_id: req.user.dicordId,
-                dao_name: data.dao_name,
-            });
-            if (review_exist) {
-                return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
-            }
-            review_exist = await Review.findOne({
-                public_address: data.public_address,
-                dao_name: data.dao_name,
-            });
-            //duplicate review check
-            if (review_exist) {
-                return res.redirect(`${FRONTEND}/redirect/duplicate_review`);
-            }
             let current_review = await Review.findById(data.id);
             current_review.authorized = true;
             current_review.user_discord_id = req.user.dicordId;
