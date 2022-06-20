@@ -343,8 +343,22 @@ const RateReviewHandler = async (req, res) => {
     }
 };
 
-router.post("/rate-review", RateReviewHandler);
+const getReviewDid = async (req, res) => {
+    let review_exist = await Review.findOne({
+        user_discord_id: req.query.dicordId,
+        dao_name: req.query.dao_name,
+    });
+    //duplicate review check
+    if (review_exist) {
+        return res.status(204).send();
+    }
+    else {
+        return res.status(200).send();
+    }
+}
 
+router.get('/get-review-by-did', getReviewDid)
+router.post("/rate-review", RateReviewHandler);
 router.post("/add-review", addReview);
 router.get("/authorize-review", authorizeReview);
 router.post("/add-review-event", addReviewEvent);
