@@ -368,6 +368,24 @@ const getReviewDid = async (req, res) => {
     }
 };
 
+const getReviewByid = async (req, res) => {
+    try {
+        let rid = req.query.rid;
+        let review_exist = await Review.findById(rid);
+        //duplicate review check
+        if (review_exist) {
+            return res.status(200).send(review_exist._doc);
+        } else {
+            return res.status(404).send();
+        }
+    }
+    catch (er) {
+        console.log(er);
+        res.status(404).send()
+    }
+};
+
+router.get("/get-review-by-id", getReviewByid);
 router.get("/get-review-by-did", getReviewDid);
 router.post("/rate-review", RateReviewHandler);
 router.post("/add-review", addReview);
