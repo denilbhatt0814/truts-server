@@ -126,7 +126,7 @@ const createNewDaoV2 = async (req, res) => {
   } = req.body;
 
   dao_name = dao_name.trim();
-  slug = dao_name.toLocaleLowerCase().replace(/00/g, "_");
+  slug = dao_name.toLocaleLowerCase().replaceAll(" ", "_");
 
   // Fetch for twitter details
   try {
