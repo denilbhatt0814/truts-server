@@ -98,7 +98,7 @@ const authorizeReview = async (req, res) => {
                 if (save_current_review && db_res_dao) {
                     res.redirect(`${FRONTEND}/redirect/success`);
 
-                    let discord_callback = await axios.post(`${process.env.INTERNAL_DISCORD_BOT}/added-review`, {
+                    axios.post(`${process.env.INTERNAL_DISCORD_BOT}/added-review`, {
                         submitter_public_address: current_review.public_address,
                         dao_name: current_review.dao_name,
                         rating: current_review.rating,
