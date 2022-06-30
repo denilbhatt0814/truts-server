@@ -214,6 +214,10 @@ const createNewDaoV2 = async (req, res) => {
     // Item created succesfuly
     if (dbres) {
       res.status(201).send({ result: DaoData });
+      axios.post(`${process.env.INTERNAL_DISCORD_BOT}/added-dao`, {
+        submitter_discord_id: submitter_discord_id,
+        dao_name: dao_name,
+      });
     }
   } catch (error) {
     console.log(error);
