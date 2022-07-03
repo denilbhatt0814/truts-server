@@ -8,6 +8,7 @@ const axios = require("axios");
 var Review = require("../models/Review");
 var Dao = require("../models/Dao");
 var RateReview = require("../models/RateReview");
+var User = require("../models/User");
 
 const FRONTEND = process.env.FRONTEND;
 
@@ -374,7 +375,14 @@ const getReviewByid = async (req, res) => {
         let review_exist = await Review.findById(rid);
         //duplicate review check
         if (review_exist) {
-            return res.status(200).send(review_exist._doc);
+            const dicordId = review_exist.user_discord_id;
+            let user = await User.findOne({ dicordId });
+            img_url = user.profile_img;
+            // In case img isn't available: Default Avatar
+            if (img_url.slice(-4) === "null") {
+                img_url = "https://www.truts.xyz/hero-bg.jpg";
+            }
+            return res.status(200).send({ ...review_exist._doc, profile_img: img_url });
         } else {
             return res.status(404).send();
         }
