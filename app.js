@@ -3,7 +3,7 @@ const express = require("express");
 var session = require("express-session");
 const dotenv = require("dotenv");
 dotenv.config();
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const passport = require("passport");
@@ -50,7 +50,7 @@ app.use("/auth", authRouter);
 app.use("/review", reviewRouter);
 app.use("/search", searchRouter);
 app.use("/txn", txnRouter);
-app.use("/analytics", analyticsRouter);
+// app.use("/analytics", analyticsRouter);
 
 const port = process.env.PORT;
 db.once("open", function () {
