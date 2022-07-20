@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const passport = require("passport");
-const compression = require('compression');
+const compression = require("compression");
 require("./strategies/discord");
 
 //import routers
@@ -15,6 +15,8 @@ const daoRouter = require("./routes/daoRoute");
 const authRouter = require("./routes/authRoute");
 const reviewRouter = require("./routes/reviewRoute");
 const searchRouter = require("./routes/searchRoute");
+const analyticsRouter = require("./routes/analyticsRoute");
+const txnRouter = require("./routes/tippingTxnRoute");
 
 // intialize server
 const app = express();
@@ -47,6 +49,8 @@ app.use("/dao", daoRouter);
 app.use("/auth", authRouter);
 app.use("/review", reviewRouter);
 app.use("/search", searchRouter);
+app.use("/txn", txnRouter);
+app.use("/analytics", analyticsRouter);
 
 const port = process.env.PORT;
 db.once("open", function () {
