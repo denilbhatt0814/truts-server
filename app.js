@@ -15,7 +15,7 @@ const daoRouter = require("./routes/daoRoute");
 const authRouter = require("./routes/authRoute");
 const reviewRouter = require("./routes/reviewRoute");
 const searchRouter = require("./routes/searchRoute");
-const analyticsRouter = require("./routes/analyticsRoute");
+// const analyticsRouter = require("./routes/analyticsRoute");
 const txnRouter = require("./routes/tippingTxnRoute");
 
 // intialize server
