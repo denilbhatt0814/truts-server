@@ -10,8 +10,8 @@ let TippingTxnScheam = new Schema(
     tip_token_address: String,
     from_address: String,
     to_address: String,
-    value_inTokens: String,
-    value_inUSD: String,
+    value_inTokens: Number,
+    value_inUSD: Number,
     tx_hash: String,
   },
   {
