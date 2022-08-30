@@ -14,13 +14,18 @@ require("./strategies/discord");
 const daoRouter = require("./routes/daoRoute");
 const authRouter = require("./routes/authRoute");
 const reviewRouter = require("./routes/reviewRoute");
+const reviewRouterv2 = require("./routes/reviewRoute-v2");
 const searchRouter = require("./routes/searchRoute");
 // const analyticsRouter = require("./routes/analyticsRoute");
 const txnRouter = require("./routes/tippingTxnRoute");
 
 // intialize server
 const app = express();
-app.use(cors({ credentials: true }));
+const corsConfig = {
+  origin: true,
+  credentials: true,
+};
+app.use(cors(corsConfig));
 app.use(compression());
 // Set up mongoose connection
 const mongoDB = process.env.MONGODB_URI;
@@ -48,6 +53,7 @@ app.use(passport.session());
 app.use("/dao", daoRouter);
 app.use("/auth", authRouter);
 app.use("/review", reviewRouter);
+app.use("/review-v2", reviewRouterv2);
 app.use("/search", searchRouter);
 app.use("/txn", txnRouter);
 // app.use("/analytics", analyticsRouter);
