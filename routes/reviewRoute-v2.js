@@ -50,60 +50,76 @@ const userValidation = async (req, res) => {
 }
 
 const addReview = async (req, res) => {
-  console.log(req.isAuthenticated())
-  if (req.isAuthenticated()) {
-    let { uid, slug } = req.body.validation;
-    let user_val = await userValidationMiddleWare(uid, slug);
-    if (!user_val.isMember || user_val.isDuplicate) {
-      return res.status(403).send({ validation: "failed" })
-    }
+  let { uid, slug } = req.body.validation;
+  let user_val = await userValidationMiddleWare(uid, slug);
 
-    console.log(req.body.review);
-    let review = new Review(req.body.review);
-    let db_res = await review.save();
-
-    // update review count
-    let count = await Review.count({
-      dao_name: req.body.review.dao_name,
-      guild_id: req.body.review.guild_id,
-    });
-    let dao = await Dao.findOne({
-      dao_name: req.body.review.dao_name,
-      guild_id: req.body.review.guild_id,
-    });
-
-    dao.review_count = count;
-
-    // Getting average rating:
-    let rating = db_res.rating;
-    dao.average_rating = parseFloat(
-      (
-        (dao.average_rating * (count - 1) + parseInt(rating)) /
-        count
-      ).toFixed(1)
-    );
-
-    let update_stats = await dao.save()
-
-    if (db_res && update_stats) {
-
-      axios.post(`${process.env.INTERNAL_DISCORD_BOT}/added-review`, {
-        submitter_public_address: db_res.public_address,
-        dao_name: db_res.dao_name,
-        rating: db_res.rating,
-        rid: db_res._id,
-      });
-
-      return res.status(200).send({ db_res })
-    }
-    return res.status(500).send()
+  if (!user_val.isMember || user_val.isDuplicate) {
+    return res.status(403).send({ validation: "failed" })
   }
-  else {
-    return res.status(500).send()
+
+  console.log(req.body.review);
+  let review = new Review(req.body.review);
+  let db_res = await review.save();
+  if (db_res) {
+    return res.status(200).send({ r_id: db_res._id })
   }
+
+  return res.status(500).send()
 }
 
+const authReview = async (req, res) => {
+  if (req.isAuthenticated()) {
+
+    let { r_id } = req.query;
+    let review = await Review.findById(r_id);
+    if (review) {
+      review.user_discord_id = req.user.dicordId
+      review.authorized = true;
+    }
+
+    let save_review = await review.save();
+    if (save_review) {
+
+      let count = await Review.count({
+        dao_name: save_review.dao_name,
+        guild_id: save_review.guild_id,
+      });
+      let dao = await Dao.findOne({
+        dao_name: save_review.dao_name,
+        guild_id: save_review.guild_id,
+      });
+
+      dao.review_count = count;
+
+      // Getting average rating:
+      let rating = save_review.rating;
+      dao.average_rating = parseFloat(
+        (
+          (dao.average_rating * (count - 1) + parseInt(rating)) /
+          count
+        ).toFixed(1)
+      );
+
+      let update_stats = await dao.save()
+
+      if (update_stats) {
+        axios.post(`${process.env.INTERNAL_DISCORD_BOT}/added-review`, {
+          submitter_public_address: save_review.public_address,
+          dao_name: save_review.dao_name,
+          rating: save_review.rating,
+          rid: save_review._id,
+        });
+        return res.redirect(`${process.env.FRONTEND}/add-review/status?type=success`)
+      }
+    }
+  }
+  return res.redirect(`${process.env.FRONTEND}/add-review/status?type=error`)
+}
+
+router.get('/auth-review', authReview);
 router.post('/add-review', addReview);
 router.get('/user-validation', userValidation)
 
 module.exports = router;
+
+
