@@ -260,22 +260,19 @@ const addSampleReviews = async (req, res) => {
 
     rating = `${Math.floor(Math.random() * (5 - 3 + 1)) + 3}`;
     review_desc = para[Math.floor(Math.random() * (15 - 0 + 1)) + 0];
-    resonate_vibes_rate = `${
-      Math.floor(Math.random() * (max - min + 1)) + min
-    }`;
+    resonate_vibes_rate = `${Math.floor(Math.random() * (max - min + 1)) + min
+      }`;
     onboarding_exp = `${Math.floor(Math.random() * (max - min + 1)) + min}`;
     opinions_matter = `${Math.floor(Math.random() * (max - min + 1)) + min}`;
-    great_org_structure = `${
-      Math.floor(Math.random() * (max - min + 1)) + min
-    }`;
+    great_org_structure = `${Math.floor(Math.random() * (max - min + 1)) + min
+      }`;
     friend_recommend = `${Math.floor(Math.random() * (max - min + 1)) + min}`;
     great_incentives = `${Math.floor(Math.random() * (max - min + 1)) + min}`;
     user_discord_id = `${Math.floor(Math.random() * (max - min + 1)) + min}`;
     dao_name = dao_list[i].dao_name;
     guild_id = dao_list[i].guild_id;
-    public_address = `0x${
-      Math.floor(Math.random() * 100000000000) + 900000000000
-    }`;
+    public_address = `0x${Math.floor(Math.random() * 100000000000) + 900000000000
+      }`;
 
     let newReview = new Review({
       rating,
@@ -345,7 +342,7 @@ const RateReviewHandler = async (req, res) => {
     let review_doc = await Review.findById(review_id);
 
     if (!review_doc) {
-      res.status(404).send({ msg: "review doc not found" });
+      return res.status(404).send({ msg: "review doc not found" });
     }
 
     review_doc.thumbs_down = false_res?.length ? false_res?.length : 0;
@@ -397,6 +394,7 @@ const getReviewByid = async (req, res) => {
   }
 };
 
+// review//
 router.get("/get-review-by-id", getReviewByid);
 router.get("/get-review-by-did", getReviewDid);
 router.post("/rate-review", RateReviewHandler);

@@ -116,6 +116,65 @@ const authReview = async (req, res) => {
   return res.redirect(`${process.env.FRONTEND}/add-review/status?type=error`)
 }
 
+const rateReview = async (req, res) => {
+  let { review_id, address, rating } = req.body;
+
+  let rate_review = await RateReview.findOne({
+    review_id,
+    wallet_address: address
+  });
+
+  let types = { NEW: "new", SWITCH: "switch", DELETE: "delete" }
+  let type;
+
+  if (!rate_review) {
+    // new rating
+    let newRating = new RateReview({
+      review_id: review_id,
+      wallet_address: address,
+      rating: rating
+    })
+
+    let save_rating = await newRating.save();
+    if (save_rating) {
+      type = types.NEW
+    }
+  }
+  else {
+    if (rating == rate_review.rating) {
+      // delete rating 
+      rate_review.review_id = ''
+      type = types.DELETE
+    }
+    else {
+      //swtich rating
+      rate_review.rating = !rate_review.rating 
+      type = types.SWITCH
+    }
+    await rate_review.save();
+  }
+
+  let true_rating = await RateReview.count({ review_id, rating: true });
+  let false_rating = await RateReview.count({ review_id, rating: false });
+
+  console.log(type, true_rating, false_rating);
+
+  let review = await Review.findById(review_id);
+
+  review.thumbs_down = false_rating;
+  review.thumbs_up = true_rating;
+
+  let save_review = await review.save();
+
+  if (save_review) {
+    return res.status(200).send({ rating, type });
+  }
+
+  return res.status(500).send({ msg: "server error", er });
+}
+
+//review-v2/
+router.post('/rate-review', rateReview);
 router.get('/auth-review', authReview);
 router.post('/add-review', addReview);
 router.get('/user-validation', userValidation)
