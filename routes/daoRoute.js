@@ -126,7 +126,7 @@ const createNewDaoV2 = async (req, res) => {
   } = req.body;
 
   dao_name = dao_name.trim();
-  slug = dao_name.toLocaleLowerCase().replace(/00/g, "_");
+  slug = dao_name.toLocaleLowerCase().replace(" ", "_");
 
   // Fetch for twitter details
   try {
@@ -379,13 +379,13 @@ const paginatedResults = (models) => {
     //if category is requested      //accounting for various cases
     query = category
       ? {
-          verified_status: true,
-          $or: [
-            { dao_category: category },
-            { dao_category: category.toLocaleLowerCase },
-            { dao_category: capitalizeFirstLetter(category) },
-          ],
-        }
+        verified_status: true,
+        $or: [
+          { dao_category: category },
+          { dao_category: category.toLocaleLowerCase },
+          { dao_category: capitalizeFirstLetter(category) },
+        ],
+      }
       : { verified_status: true };
 
     // Index of data to fetch/send
