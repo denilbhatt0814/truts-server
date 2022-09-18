@@ -379,13 +379,13 @@ const paginatedResults = (models) => {
     //if category is requested      //accounting for various cases
     query = category
       ? {
-          verified_status: true,
-          $or: [
-            { dao_category: category },
-            { dao_category: category.toLocaleLowerCase },
-            { dao_category: capitalizeFirstLetter(category) },
-          ],
-        }
+        verified_status: true,
+        $or: [
+          { dao_category: category },
+          { dao_category: category.toLocaleLowerCase },
+          { dao_category: capitalizeFirstLetter(category) },
+        ],
+      }
       : { verified_status: true };
 
     // Index of data to fetch/send
