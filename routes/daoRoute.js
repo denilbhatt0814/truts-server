@@ -123,6 +123,8 @@ const createNewDaoV2 = async (req, res) => {
     mirror_link,
     submitter_discord_id,
     submitter_public_address,
+    chain,
+    treasury
   } = req.body;
 
   dao_name = dao_name.trim();
@@ -207,6 +209,8 @@ const createNewDaoV2 = async (req, res) => {
     mirror_link,
     submitter_discord_id,
     submitter_public_address,
+    chain,
+    treasury
   });
 
   try {
@@ -438,7 +442,8 @@ const paginatedResults = (models) => {
   };
 };
 
-// ----------- ROUTES --------------
+
+// ----------- ROUTES -------------- /dao
 router.get("/redirect", redirectById);
 
 // get similar daos

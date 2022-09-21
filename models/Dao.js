@@ -86,6 +86,17 @@ var DaoSchema = new Schema(
     },
     submitter_dicord_id: { type: String },
     submitter_public_address: { type: String },
+    chain: {
+      type: [{ type: String }],
+      required: true,
+      validate: {
+        validator: (v) => v.length <= 10,
+        message: "Category is over 3",
+      },
+    },
+    treasury: {
+      type: String
+    }
   },
   {
     timestamps: true,
