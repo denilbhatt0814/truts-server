@@ -85,5 +85,3 @@ db.once("open", function () {
   });
 });
 
-let script = require('./script');
-script();
