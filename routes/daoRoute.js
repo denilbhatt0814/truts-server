@@ -123,6 +123,8 @@ const createNewDaoV2 = async (req, res) => {
     mirror_link,
     submitter_discord_id,
     submitter_public_address,
+    chain,
+    treasury
   } = req.body;
 
   dao_name = dao_name.trim();
@@ -207,6 +209,8 @@ const createNewDaoV2 = async (req, res) => {
     mirror_link,
     submitter_discord_id,
     submitter_public_address,
+    chain,
+    treasury
   });
 
   try {
@@ -394,18 +398,25 @@ const paginatedResults = (models) => {
 
     const results = {};
 
+    let dao_count = await models.countDocuments(query)
+
     // If not first page will send the
     // pointer to last page
+
+    results.lastPage = Math.ceil(dao_count / limit)
+    results.limit = limit;
+
     if (startIndex > 0) {
       results.previous = {
         page: page - 1,
         limit: limit,
+
       };
     }
 
     // Incase more data available to share
     // will point to next page
-    if (endIndex < (await models.countDocuments(query))) {
+    if (endIndex < dao_count) {
       results.next = {
         page: page + 1,
         limit: limit,
@@ -431,7 +442,8 @@ const paginatedResults = (models) => {
   };
 };
 
-// ----------- ROUTES --------------
+
+// ----------- ROUTES -------------- /dao
 router.get("/redirect", redirectById);
 
 // get similar daos

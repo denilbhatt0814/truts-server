@@ -10,6 +10,8 @@ const passport = require("passport");
 const compression = require("compression");
 require("./strategies/discord");
 
+const Email = require('./models/Emails');
+
 //import routers
 const daoRouter = require("./routes/daoRoute");
 const authRouter = require("./routes/authRoute");
@@ -58,6 +60,23 @@ app.use("/search", searchRouter);
 app.use("/txn", txnRouter);
 // app.use("/analytics", analyticsRouter);
 
+//save email news letter
+
+app.get('/email-save', async (req, res) => {
+  try {
+    let email = req.query.email;
+    let newEmail = new Email({ email });
+    let saveEmail = await newEmail.save();
+    if (saveEmail) {
+      return res.status(200).send("success");
+    }
+    return res.status(500)
+  }
+  catch (er) {
+    return res.status(500).json({ er })
+  }
+})
+
 const port = process.env.PORT;
 db.once("open", function () {
   console.log("DB Connected!");
@@ -65,3 +84,4 @@ db.once("open", function () {
     console.log("Server is up and running on port number " + port);
   });
 });
+
