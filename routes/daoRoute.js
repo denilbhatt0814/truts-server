@@ -124,7 +124,7 @@ const createNewDaoV2 = async (req, res) => {
     submitter_discord_id,
     submitter_public_address,
     chain,
-    treasury
+    treasury,
   } = req.body;
 
   dao_name = dao_name.trim();
@@ -210,7 +210,7 @@ const createNewDaoV2 = async (req, res) => {
     submitter_discord_id,
     submitter_public_address,
     chain,
-    treasury
+    treasury,
   });
 
   try {
@@ -231,8 +231,54 @@ const createNewDaoV2 = async (req, res) => {
 };
 
 const getAllDaos = async (req, res) => {
-  let daos = res.paginatedResults;
-  return res.status(200).send(daos);
+  let page = parseInt(req.query.page);
+  if (!req.query.page) {
+    page = 1; // default
+  }
+
+  let limit = parseInt(req.query.limit);
+  if (!req.query.limit) {
+    limit = 20; // default
+  }
+
+  const skipVal = limit * (page - 1);
+
+  const endIndex = page * limit;
+
+  const results = {};
+
+  let dao_count = await Dao.countDocuments({ verified_status: true });
+  let startIndex = skipVal;
+  // If not first page will send the
+  // pointer to last page
+
+  results.lastPage = Math.ceil(dao_count / limit);
+  results.limit = limit;
+
+  if (startIndex > 0) {
+    results.previous = {
+      page: page - 1,
+      limit: limit,
+    };
+  }
+
+  // Incase more data available to share
+  // will point to next page
+  if (endIndex < dao_count) {
+    results.next = {
+      page: page + 1,
+      limit: limit,
+    };
+  }
+
+  results.results = await Dao.find(
+    { verified_status: true },
+    { question_list: 0, question_list_rating: 0 }
+  )
+    .limit(limit)
+    .skip(skipVal);
+
+  return res.status(200).json({ ...results });
 };
 
 const getDaoBySlug = async (req, res) => {
@@ -383,13 +429,13 @@ const paginatedResults = (models) => {
     //if category is requested      //accounting for various cases
     query = category
       ? {
-        verified_status: true,
-        $or: [
-          { dao_category: category },
-          { dao_category: category.toLocaleLowerCase },
-          { dao_category: capitalizeFirstLetter(category) },
-        ],
-      }
+          verified_status: true,
+          $or: [
+            { dao_category: category },
+            { dao_category: category.toLocaleLowerCase },
+            { dao_category: capitalizeFirstLetter(category) },
+          ],
+        }
       : { verified_status: true };
 
     // Index of data to fetch/send
@@ -398,19 +444,18 @@ const paginatedResults = (models) => {
 
     const results = {};
 
-    let dao_count = await models.countDocuments(query)
+    let dao_count = await models.countDocuments(query);
 
     // If not first page will send the
     // pointer to last page
 
-    results.lastPage = Math.ceil(dao_count / limit)
+    results.lastPage = Math.ceil(dao_count / limit);
     results.limit = limit;
 
     if (startIndex > 0) {
       results.previous = {
         page: page - 1,
         limit: limit,
-
       };
     }
 
@@ -442,7 +487,6 @@ const paginatedResults = (models) => {
   };
 };
 
-
 // ----------- ROUTES -------------- /dao
 router.get("/redirect", redirectById);
 
@@ -454,7 +498,7 @@ router.post("/create-new-dao", createNewDao);
 router.post("/create-new-dao-v2", createNewDaoV2);
 
 //get list of daos
-router.get("/get-dao-list", paginatedResults(Dao), getAllDaos);
+router.get("/get-dao-list", getAllDaos);
 
 //get dao by slug
 router.get("/get-dao-by-slug", getDaoBySlug);
